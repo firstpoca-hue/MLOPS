@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Installing boto3..."
+      - pip install boto3
+
+  build:
+    commands:
+      - echo "Starting SageMaker Deployment..."
+      - python deploy/deploy_model.py
+
+artifacts:
+  files:
+    - '**/*'
