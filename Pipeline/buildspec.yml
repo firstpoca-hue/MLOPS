@@ -3,13 +3,21 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Installing boto3..."
-      - pip install boto3
+      - echo "Installing dependencies..."
+      - pip install -r requirements.txt
 
   build:
     commands:
-      - echo "Starting SageMaker Deployment..."
-      - python deploy/deploy_model.py
+      - echo "📤 Uploading data.csv from Git to S3..."
+      - aws s3 cp data.csv s3://teamars/data/data.csv
+      - echo "✅ Data uploaded to s3://teamars/data/data.csv"
+      - echo "🔧 Creating/Updating SageMaker Pipeline..."
+      - python Pipeline/sagemaker_pipeline.py
+      - echo "🚀 Executing SageMaker Pipeline..."
+      - python -c "import boto3; sm = boto3.client('sagemaker', region_name='eu-central-1'); sm.start_pipeline_execution(PipelineName='loan-model-pipeline')"
+      - echo "✅ Pipeline execution started. Check SageMaker Console for progress."
+      - echo "🤖 Models meeting criteria (Accuracy >= 0.7, F1 >= 0.7) will be automatically approved."
+      - echo "🚀 Approved models can be deployed using: python deploy/deploy_model.py"
 
 artifacts:
   files:

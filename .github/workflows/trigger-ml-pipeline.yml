@@ -1,0 +1,57 @@
+name: Trigger ML Pipeline
+
+on:
+  push:
+    paths:
+      - 'data.csv'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  trigger-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install boto3 sagemaker
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-central-1
+
+    - name: Upload data to S3
+      run: |
+        aws s3 cp data.csv s3://teamars/data/data.csv
+        echo "✅ Data uploaded to S3"
+
+    - name: Create/Update SageMaker Pipeline
+      run: |
+        python Pipeline/sagemaker_pipeline.py
+        echo "✅ SageMaker Pipeline updated"
+
+    - name: Execute SageMaker Pipeline
+      run: |
+        python -c "
+        import boto3
+        sm = boto3.client('sagemaker', region_name='eu-central-1')
+        response = sm.start_pipeline_execution(PipelineName='loan-model-pipeline')
+        print(f'✅ Pipeline execution started: {response[\"PipelineExecutionArn\"]}')
+        "
+
+    - name: Deploy approved models
+      run: |
+        sleep 30  # Wait for pipeline to start
+        python deploy/deploy_model.py || echo "⚠️ No approved models found or deployment failed"
