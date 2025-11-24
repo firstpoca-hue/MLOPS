@@ -92,8 +92,8 @@
             <div class="result" id="result"></div>
             
             <div class="note">
-                <strong>Note:</strong> This is a demo using a simple rule-based prediction. 
-                For real predictions, connect to your SageMaker endpoint.
+                <strong>Note:</strong> Currently using demo logic. To connect your real SageMaker model, 
+                you need a CORS proxy or serverless function.
             </div>
         </div>
     </div>
@@ -106,20 +106,23 @@
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
             
-            // Simple rule-based prediction (replace with SageMaker call)
+            // Call your SageMaker endpoint via proxy
+            const modelInput = {
+                no_of_dependents: parseInt(data.dependents),
+                education: data.education === 'Graduate' ? 0 : 1,
+                self_employed: data.self_employed === 'Yes' ? 1 : 0,
+                income_annum: Math.log(parseFloat(data.income) + 1),
+                loan_amount: Math.log(parseFloat(data.loan_amount) + 1),
+                loan_term: parseInt(data.loan_term),
+                credit_score: parseInt(data.credit_score),
+                total_asset: Math.log(parseFloat(data.total_asset) + 1)
+            };
+            
+            // TODO: Replace with actual SageMaker API call
+            // For now, using simple logic until proxy is set up
             const income = parseInt(data.income);
             const creditScore = parseInt(data.credit_score);
-            const education = data.education;
-            const selfEmployed = data.self_employed;
-            
-            let prediction = 0;
-            
-            // Simple scoring logic
-            if (income > 3000000 && creditScore > 650 && education === 'Graduate' && selfEmployed === 'No') {
-                prediction = 1;
-            } else if (income > 5000000 && creditScore > 700) {
-                prediction = 1;
-            }
+            let prediction = (income > 4000000 && creditScore > 700) ? 1 : 0;
             
             const result = document.getElementById('result');
             
