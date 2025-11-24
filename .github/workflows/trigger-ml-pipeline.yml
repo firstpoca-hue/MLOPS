@@ -36,6 +36,7 @@ jobs:
     - name: Upload data and code to S3
       run: |
         aws s3 cp data.csv s3://teamars/data/data.csv
+        aws s3 cp code/inference.py s3://teamars/data/inference.py
         
         # Package code for SageMaker
         cd code
