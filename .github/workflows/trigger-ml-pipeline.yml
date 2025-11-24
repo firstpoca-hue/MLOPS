@@ -40,7 +40,10 @@ jobs:
 
     - name: Create/Update SageMaker Pipeline
       run: |
-        python Pipeline/sagemaker_pipeline.py
+        timeout 5m python Pipeline/sagemaker_pipeline.py || {
+          echo "⚠️ Pipeline creation timed out or failed"
+          exit 1
+        }
         echo "✅ SageMaker Pipeline updated"
 
     - name: Execute SageMaker Pipeline

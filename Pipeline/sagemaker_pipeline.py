@@ -1,4 +1,5 @@
 import boto3
+import sagemaker
 from sagemaker.workflow.pipeline import Pipeline
 from sagemaker.workflow.steps import ProcessingStep, TrainingStep
 from sagemaker.workflow.model_step import ModelStep
@@ -161,10 +162,12 @@ def create_pipeline():
     )
     
     # Create pipeline
+    sagemaker_session = sagemaker.Session()
     pipeline = Pipeline(
         name="loan-model-pipeline",
         parameters=[input_data],
-        steps=[processing_step, training_step, evaluation_step, condition_step]
+        steps=[processing_step, training_step, evaluation_step, condition_step],
+        sagemaker_session=sagemaker_session
     )
     
     return pipeline
