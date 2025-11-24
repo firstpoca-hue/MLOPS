@@ -88,8 +88,8 @@ def deploy_to_sagemaker():
             print(f"⏳ Endpoint is {endpoint_status}, waiting...")
             return
             
-    except sm.exceptions.ClientError as e:
-        if 'does not exist' in str(e):
+    except Exception as e:
+        if 'does not exist' in str(e) or 'Could not find endpoint' in str(e):
             print("🆕 Creating new endpoint...")
             sm.create_endpoint(
                 EndpointName=ENDPOINT_NAME,
