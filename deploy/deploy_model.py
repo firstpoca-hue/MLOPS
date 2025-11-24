@@ -7,7 +7,7 @@ ROLE_ARN = "arn:aws:iam::361509912577:role/SageMakerExecutionRole"
 BUCKET = "teamars"
 MODEL_PACKAGE_GROUP_NAME = "loan-model-package-group"
 ENDPOINT_NAME = "loan-endpoint"
-INSTANCE_TYPE = "ml.t2.medium"
+INSTANCE_TYPE = "ml.m5.large"
 # ============================================
 
 def get_latest_model():

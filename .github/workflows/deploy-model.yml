@@ -43,6 +43,22 @@ jobs:
         echo "🔍 Checking for trained models in S3..."
         aws s3 ls s3://teamars/model-output/ --recursive || echo "No models found"
         
+    - name: Cleanup Failed Endpoint
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        python -c "
+        import boto3
+        sm = boto3.client('sagemaker', region_name='eu-central-1')
+        try:
+            response = sm.describe_endpoint(EndpointName='loan-endpoint')
+            if response['EndpointStatus'] == 'Failed':
+                print('🗑️ Deleting failed endpoint...')
+                sm.delete_endpoint(EndpointName='loan-endpoint')
+                print('✅ Failed endpoint deleted')
+        except:
+            pass
+        "
+        
     - name: Deploy Model to Endpoint
       if: github.event.inputs.action == 'deploy'
       run: |
@@ -85,8 +101,11 @@ jobs:
                 
             if status == 'InService':
                 print('✅ Endpoint is ready!')
+            elif status == 'Failed':
+                failure_reason = response.get('FailureReason', 'Unknown')
+                print(f'❌ Endpoint failed: {failure_reason}')
             else:
-                print(f'❌ Endpoint failed: {status}')
+                print(f'❌ Endpoint status: {status}')
                 
         except Exception as e:
             print(f'❌ Endpoint not found: {e}')
