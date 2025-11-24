@@ -4,6 +4,7 @@ import time
 # ================== CONFIG ==================
 REGION = "eu-central-1"
 ROLE_ARN = "arn:aws:iam::361509912577:role/SageMakerExecutionRole"
+BUCKET = "teamars"
 MODEL_PACKAGE_GROUP_NAME = "loan-model-package-group"
 ENDPOINT_NAME = "loan-endpoint"
 INSTANCE_TYPE = "ml.t2.medium"
@@ -44,7 +45,7 @@ def deploy_to_sagemaker():
         return
     
     model_version = f"loan-model-{int(time.time())}"
-    print(f"🚀 Creating SageMaker Model from: {model_package_arn}")
+    print(f"🚀 Creating SageMaker Model from: {model_data_url}")
     
     # Create model from S3 artifacts
     sm.create_model(
