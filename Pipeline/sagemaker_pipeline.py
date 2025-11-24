@@ -21,6 +21,10 @@ def create_training_job():
                 'TrainingImage': f'492215442770.dkr.ecr.{REGION}.amazonaws.com/sagemaker-scikit-learn:1.0-1-cpu-py3',
                 'TrainingInputMode': 'File'
             },
+            HyperParameters={
+                'sagemaker_program': 'train.py',
+                'sagemaker_submit_directory': f's3://{BUCKET}/code/source.tar.gz'
+            },
             InputDataConfig=[
                 {
                     'ChannelName': 'training',
