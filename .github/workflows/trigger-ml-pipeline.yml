@@ -39,36 +39,11 @@ jobs:
         aws s3 cp --recursive code/ s3://teamars/code/
         echo "✅ Data and code uploaded to S3"
 
-    - name: Create/Update SageMaker Pipeline
+    - name: Start SageMaker Training
       run: |
         python Pipeline/sagemaker_pipeline.py
-        
-    - name: Verify Pipeline Creation
-      run: |
-        python -c "
-        import boto3
-        sm = boto3.client('sagemaker', region_name='eu-central-1')
-        try:
-            response = sm.describe_pipeline(PipelineName='loan-model-pipeline')
-            print(f'✅ Pipeline exists: {response[\"PipelineName\"]}')
-            print(f'Status: {response[\"PipelineStatus\"]}')
-        except Exception as e:
-            print(f'❌ Pipeline not found: {e}')
-        "
 
-    - name: Execute SageMaker Pipeline
+    - name: Monitor Training Job
       run: |
-        python -c "
-        import boto3
-        sm = boto3.client('sagemaker', region_name='eu-central-1')
-        try:
-            response = sm.start_pipeline_execution(PipelineName='loan-model-pipeline')
-            print(f'✅ Pipeline execution started: {response[\"PipelineExecutionArn\"]}')
-        except Exception as e:
-            print(f'❌ Pipeline execution failed: {e}')
-        "
-
-    - name: Deploy approved models
-      run: |
-        sleep 30  # Wait for pipeline to start
-        python deploy/deploy_model.py || echo "⚠️ No approved models found or deployment failed"
+        echo "📋 Training job started. Check AWS SageMaker Console for progress."
+        echo "🔗 Console: https://eu-central-1.console.aws.amazon.com/sagemaker/home?region=eu-central-1#/jobs"
