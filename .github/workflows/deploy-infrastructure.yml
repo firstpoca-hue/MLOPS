@@ -44,6 +44,12 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
+    - name: Import existing resources
+      if: github.event.inputs.action == 'apply'
+      run: |
+        terraform import module.s3.aws_s3_bucket.ml_bucket teamars || true
+        terraform import module.s3.aws_s3_bucket.pipeline_artifacts teamars-pipeline-artifacts || true
+
     - name: Terraform Plan
       if: github.event.inputs.action == 'plan'
       run: terraform plan

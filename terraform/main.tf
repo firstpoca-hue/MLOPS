@@ -11,6 +11,12 @@ provider "aws" {
   region = var.aws_region
 }
 
+# Import existing S3 bucket
+import {
+  to = module.s3.aws_s3_bucket.ml_bucket
+  id = "teamars"
+}
+
 module "s3" {
   source      = "./modules/s3"
   bucket_name = var.bucket_name
