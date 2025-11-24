@@ -38,7 +38,7 @@ def create_training_job():
                 'S3OutputPath': f's3://{BUCKET}/model-output/'
             },
             ResourceConfig={
-                'InstanceType': 'ml.t2.medium',
+                'InstanceType': 'ml.m5.large',
                 'InstanceCount': 1,
                 'VolumeSizeInGB': 10
             },
