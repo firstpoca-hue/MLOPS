@@ -18,7 +18,7 @@ def create_training_job():
             TrainingJobName=training_job_name,
             RoleArn=ROLE_ARN,
             AlgorithmSpecification={
-                'TrainingImage': f'683313688378.dkr.ecr.{REGION}.amazonaws.com/sagemaker-scikit-learn:1.0-1-cpu-py3',
+                'TrainingImage': f'492215442770.dkr.ecr.{REGION}.amazonaws.com/sagemaker-scikit-learn:1.0-1-cpu-py3',
                 'TrainingInputMode': 'File'
             },
             InputDataConfig=[
