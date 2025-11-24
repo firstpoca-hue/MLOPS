@@ -53,6 +53,10 @@ def deploy_to_sagemaker():
         PrimaryContainer={
             "Image": f"492215442770.dkr.ecr.{REGION}.amazonaws.com/sagemaker-scikit-learn:1.0-1-cpu-py3",
             "ModelDataUrl": model_data_url,
+            "Environment": {
+                "SAGEMAKER_PROGRAM": "inference.py",
+                "SAGEMAKER_SUBMIT_DIRECTORY": f"s3://{BUCKET}/code/source.tar.gz"
+            }
         },
         ExecutionRoleArn=ROLE_ARN,
     )

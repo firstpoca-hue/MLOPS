@@ -27,7 +27,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install boto3
+        pip install boto3 numpy
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -129,15 +129,16 @@ jobs:
                 
             runtime = boto3.client('sagemaker-runtime', region_name='eu-central-1')
             
+            import numpy as np
             payload = {
                 'no_of_dependents': 2,
                 'education': 0,
                 'self_employed': 0,
-                'income_annum': 13.3,
-                'loan_amount': 15.4,
+                'income_annum': np.log(5000000 + 1),
+                'loan_amount': np.log(10000000 + 1),
                 'loan_term': 12,
                 'credit_score': 750,
-                'total_asset': 15.9
+                'total_asset': np.log(15000000 + 1)
             }
             
             response = runtime.invoke_endpoint(

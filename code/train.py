@@ -50,46 +50,6 @@ def train():
     
     # Save model
     joblib.dump(model, os.path.join(args.model_dir, 'model.pkl'))
-    
-    # Copy inference script to model directory
-    import shutil
-    inference_source = '/opt/ml/input/data/training/inference.py'
-    if os.path.exists(inference_source):
-        shutil.copy(inference_source, os.path.join(args.model_dir, 'inference.py'))
-        print("Inference script included")
-    else:
-        # Create basic inference script if not found
-        inference_code = '''import joblib
-import pandas as pd
-import json
-import os
-
-def model_fn(model_dir):
-    model = joblib.load(os.path.join(model_dir, "model.pkl"))
-    return model
-
-def input_fn(request_body, request_content_type):
-    if request_content_type == 'application/json':
-        input_data = json.loads(request_body)
-        return pd.DataFrame([input_data])
-    else:
-        raise ValueError(f"Unsupported content type: {request_content_type}")
-
-def predict_fn(input_data, model):
-    prediction = model.predict(input_data)
-    return prediction
-
-def output_fn(prediction, content_type):
-    if content_type == 'application/json':
-        result = {"prediction": int(prediction[0])}
-        return json.dumps(result)
-    else:
-        raise ValueError(f"Unsupported content type: {content_type}")
-'''
-        with open(os.path.join(args.model_dir, 'inference.py'), 'w') as f:
-            f.write(inference_code)
-        print("Basic inference script created")
-    
     print("Model saved successfully")
 
 if __name__ == '__main__':
