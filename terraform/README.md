@@ -15,13 +15,27 @@ This directory contains Terraform configurations to deploy the complete MLOps in
 1. **Configure Variables**:
    ```bash
    cp terraform.tfvars.example terraform.tfvars
-   # Edit terraform.tfvars with your values
+   # Edit terraform.tfvars with your values (except github_token)
    ```
 
-2. **Deploy Infrastructure**:
+2. **Set Environment Variables**:
    ```bash
-   ./deploy.sh
+   cp .env.example .env
+   # Edit .env with your GitHub token and AWS credentials
    ```
+
+3. **Deploy Infrastructure**:
+   ```bash
+   ./deploy-secure.sh
+   ```
+
+### Alternative: Export Variables Manually
+```bash
+export TF_VAR_github_token="your-token-here"
+terraform init
+terraform plan
+terraform apply
+```
 
 3. **Push Code to GitHub**:
    - Pipeline automatically triggers on push
