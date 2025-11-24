@@ -50,7 +50,12 @@ jobs:
 
     - name: Terraform Apply
       if: github.event.inputs.action == 'apply'
-      run: terraform apply -auto-approve
+      run: |
+        timeout 10m terraform apply -auto-approve || {
+          echo "Terraform apply timed out or failed"
+          terraform refresh
+          terraform apply -auto-approve
+        }
 
     - name: Terraform Destroy
       if: github.event.inputs.action == 'destroy'
