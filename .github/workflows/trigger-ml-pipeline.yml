@@ -42,6 +42,19 @@ jobs:
     - name: Create/Update SageMaker Pipeline
       run: |
         python Pipeline/sagemaker_pipeline.py
+        
+    - name: Verify Pipeline Creation
+      run: |
+        python -c "
+        import boto3
+        sm = boto3.client('sagemaker', region_name='eu-central-1')
+        try:
+            response = sm.describe_pipeline(PipelineName='loan-model-pipeline')
+            print(f'✅ Pipeline exists: {response[\"PipelineName\"]}')
+            print(f'Status: {response[\"PipelineStatus\"]}')
+        except Exception as e:
+            print(f'❌ Pipeline not found: {e}')
+        "
 
     - name: Execute SageMaker Pipeline
       run: |

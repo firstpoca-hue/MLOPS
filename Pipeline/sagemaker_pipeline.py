@@ -191,14 +191,19 @@ def create_sagemaker_pipeline():
                 RoleArn=ROLE_ARN
             )
             print(f"✅ Pipeline updated: {pipeline_name}")
-        except sagemaker.exceptions.ResourceNotFound:
-            # Create new pipeline if it doesn't exist
-            response = sagemaker.create_pipeline(
-                PipelineName=pipeline_name,
-                PipelineDefinition=json.dumps(pipeline_definition),
-                RoleArn=ROLE_ARN
-            )
-            print(f"✅ Pipeline created: {pipeline_name}")
+        except Exception as update_error:
+            print(f"Update failed: {update_error}")
+            try:
+                # Create new pipeline if update fails
+                response = sagemaker.create_pipeline(
+                    PipelineName=pipeline_name,
+                    PipelineDefinition=json.dumps(pipeline_definition),
+                    RoleArn=ROLE_ARN
+                )
+                print(f"✅ Pipeline created: {pipeline_name}")
+            except Exception as create_error:
+                print(f"Create failed: {create_error}")
+                return None
         
         return pipeline_name
         
