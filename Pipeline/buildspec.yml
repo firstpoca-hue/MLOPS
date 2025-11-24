@@ -8,9 +8,10 @@ phases:
 
   build:
     commands:
-      - echo "📤 Uploading data.csv from Git to S3..."
+      - echo "📤 Uploading data and code to S3..."
       - aws s3 cp data.csv s3://teamars/data/data.csv
-      - echo "✅ Data uploaded to s3://teamars/data/data.csv"
+      - aws s3 cp --recursive code/ s3://teamars/code/
+      - echo "✅ Data and code uploaded to S3"
       - echo "🔧 Creating/Updating SageMaker Pipeline..."
       - python Pipeline/sagemaker_pipeline.py
       - echo "🚀 Executing SageMaker Pipeline..."

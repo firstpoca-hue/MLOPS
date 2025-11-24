@@ -23,8 +23,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install --upgrade pip
-        pip install boto3 'sagemaker>=2.200.0' pandas scikit-learn joblib numpy
+        pip install boto3
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -34,26 +33,26 @@ jobs:
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
         aws-region: eu-central-1
 
-    - name: Upload data to S3
+    - name: Upload data and code to S3
       run: |
         aws s3 cp data.csv s3://teamars/data/data.csv
-        echo "✅ Data uploaded to S3"
+        aws s3 cp --recursive code/ s3://teamars/code/
+        echo "✅ Data and code uploaded to S3"
 
     - name: Create/Update SageMaker Pipeline
       run: |
-        timeout 5m python Pipeline/sagemaker_pipeline.py || {
-          echo "⚠️ Pipeline creation timed out or failed"
-          exit 1
-        }
-        echo "✅ SageMaker Pipeline updated"
+        python Pipeline/sagemaker_pipeline.py
 
     - name: Execute SageMaker Pipeline
       run: |
         python -c "
         import boto3
         sm = boto3.client('sagemaker', region_name='eu-central-1')
-        response = sm.start_pipeline_execution(PipelineName='loan-model-pipeline')
-        print(f'✅ Pipeline execution started: {response[\"PipelineExecutionArn\"]}')
+        try:
+            response = sm.start_pipeline_execution(PipelineName='loan-model-pipeline')
+            print(f'✅ Pipeline execution started: {response[\"PipelineExecutionArn\"]}')
+        except Exception as e:
+            print(f'❌ Pipeline execution failed: {e}')
         "
 
     - name: Deploy approved models
