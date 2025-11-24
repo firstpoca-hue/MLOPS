@@ -75,18 +75,29 @@ def deploy_to_sagemaker():
     print("🌐 Deploying Endpoint:", ENDPOINT_NAME)
     
     try:
-        sm.describe_endpoint(EndpointName=ENDPOINT_NAME)
-        print("🔁 Updating existing endpoint...")
-        sm.update_endpoint(
-            EndpointName=ENDPOINT_NAME,
-            EndpointConfigName=config_name,
-        )
-    except:
-        print("🆕 Creating new endpoint...")
-        sm.create_endpoint(
-            EndpointName=ENDPOINT_NAME,
-            EndpointConfigName=config_name,
-        )
+        endpoint_info = sm.describe_endpoint(EndpointName=ENDPOINT_NAME)
+        endpoint_status = endpoint_info['EndpointStatus']
+        
+        if endpoint_status == 'InService':
+            print("🔁 Updating existing endpoint...")
+            sm.update_endpoint(
+                EndpointName=ENDPOINT_NAME,
+                EndpointConfigName=config_name,
+            )
+        else:
+            print(f"⏳ Endpoint is {endpoint_status}, waiting...")
+            return
+            
+    except sm.exceptions.ClientError as e:
+        if 'does not exist' in str(e):
+            print("🆕 Creating new endpoint...")
+            sm.create_endpoint(
+                EndpointName=ENDPOINT_NAME,
+                EndpointConfigName=config_name,
+            )
+        else:
+            print(f"❌ Error: {e}")
+            return
     
     print("✅ Deployment triggered successfully!")
 
