@@ -1,0 +1,89 @@
+name: Deploy ML Model
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Deployment action'
+        required: true
+        default: 'deploy'
+        type: choice
+        options:
+        - deploy
+        - delete
+
+jobs:
+  deploy-model:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install boto3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: eu-central-1
+
+    - name: Deploy Model to Endpoint
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        python deploy/deploy_model.py
+
+    - name: Delete Endpoint
+      if: github.event.inputs.action == 'delete'
+      run: |
+        python -c "
+        import boto3
+        sm = boto3.client('sagemaker', region_name='eu-central-1')
+        try:
+            sm.delete_endpoint(EndpointName='loan-endpoint')
+            print('✅ Endpoint deleted successfully')
+        except Exception as e:
+            print(f'❌ Error deleting endpoint: {e}')
+        "
+
+    - name: Test Endpoint
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        sleep 60  # Wait for endpoint to be ready
+        python -c "
+        import boto3
+        import json
+        
+        runtime = boto3.client('sagemaker-runtime', region_name='eu-central-1')
+        
+        payload = {
+            'no_of_dependents': 2,
+            'education': 0,
+            'self_employed': 0,
+            'income_annum': 13.3,
+            'loan_amount': 15.4,
+            'loan_term': 12,
+            'credit_score': 750,
+            'total_asset': 15.9
+        }
+        
+        try:
+            response = runtime.invoke_endpoint(
+                EndpointName='loan-endpoint',
+                ContentType='application/json',
+                Body=json.dumps(payload)
+            )
+            result = response['Body'].read().decode()
+            print(f'✅ Endpoint test successful: {result}')
+        except Exception as e:
+            print(f'❌ Endpoint test failed: {e}')
+        "

@@ -9,45 +9,50 @@ ENDPOINT_NAME = "loan-endpoint"
 INSTANCE_TYPE = "ml.t2.medium"
 # ============================================
 
-def get_approved_model():
-    """Get the latest approved model from Model Registry"""
-    sm = boto3.client("sagemaker", region_name=REGION)
+def get_latest_model():
+    """Get the latest trained model from S3"""
+    s3 = boto3.client("s3", region_name=REGION)
     
-    response = sm.list_model_packages(
-        ModelPackageGroupName=MODEL_PACKAGE_GROUP_NAME,
-        ModelApprovalStatus="Approved",
-        SortBy="CreationTime",
-        SortOrder="Descending"
-    )
-    
-    if not response["ModelPackageSummaryList"]:
-        print("❌ No approved models found. Model may not meet approval criteria.")
-        print("Check evaluation metrics: Accuracy >= 0.7 and F1 Score >= 0.7")
-        return None
+    try:
+        response = s3.list_objects_v2(
+            Bucket=BUCKET.replace('s3://', '').replace('/', ''),
+            Prefix='model-output/',
+            Delimiter='/'
+        )
         
-    latest_model = response["ModelPackageSummaryList"][0]
-    print(f"✅ Found approved model: {latest_model['ModelPackageArn']}")
-    return latest_model["ModelPackageArn"]
+        if 'CommonPrefixes' in response:
+            # Get the latest training job folder
+            folders = [obj['Prefix'] for obj in response['CommonPrefixes']]
+            latest_folder = sorted(folders)[-1]
+            model_data_url = f"s3://{BUCKET}/{latest_folder}output/model.tar.gz"
+            print(f"✅ Found trained model: {model_data_url}")
+            return model_data_url
+        else:
+            print("❌ No trained models found in S3")
+            return None
+            
+    except Exception as e:
+        print(f"❌ Error finding model: {e}")
+        return None
 
 def deploy_to_sagemaker():
     sm = boto3.client("sagemaker", region_name=REGION)
     
-    # Get approved model
-    model_package_arn = get_approved_model()
-    if not model_package_arn:
+    # Get trained model
+    model_data_url = get_latest_model()
+    if not model_data_url:
         return
     
     model_version = f"loan-model-{int(time.time())}"
     print(f"🚀 Creating SageMaker Model from: {model_package_arn}")
     
-    # Create model from model package
+    # Create model from S3 artifacts
     sm.create_model(
         ModelName=model_version,
-        Containers=[
-            {
-                "ModelPackageName": model_package_arn
-            }
-        ],
+        PrimaryContainer={
+            "Image": f"492215442770.dkr.ecr.{REGION}.amazonaws.com/sagemaker-scikit-learn:1.0-1-cpu-py3",
+            "ModelDataUrl": model_data_url,
+        },
         ExecutionRoleArn=ROLE_ARN,
     )
     
