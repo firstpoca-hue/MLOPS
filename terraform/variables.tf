@@ -32,8 +32,5 @@ variable "github_branch" {
   default     = "main"
 }
 
-variable "github_token" {
-  description = "GitHub personal access token"
-  type        = string
-  sensitive   = true
-}
+# GitHub token not needed for infrastructure deployment
+# CodePipeline will be configured without GitHub integration
