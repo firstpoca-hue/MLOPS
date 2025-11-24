@@ -23,7 +23,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install boto3 sagemaker
+        pip install --upgrade pip
+        pip install boto3 'sagemaker>=2.200.0' pandas scikit-learn joblib numpy
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
