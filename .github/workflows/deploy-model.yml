@@ -37,6 +37,12 @@ jobs:
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
         aws-region: eu-central-1
 
+    - name: Check Available Models
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        echo "🔍 Checking for trained models in S3..."
+        aws s3 ls s3://teamars/model-output/ --recursive || echo "No models found"
+        
     - name: Deploy Model to Endpoint
       if: github.event.inputs.action == 'deploy'
       run: |
@@ -55,28 +61,66 @@ jobs:
             print(f'❌ Error deleting endpoint: {e}')
         "
 
+    - name: Check Endpoint Status
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        python -c "
+        import boto3
+        import time
+        
+        sm = boto3.client('sagemaker', region_name='eu-central-1')
+        
+        try:
+            response = sm.describe_endpoint(EndpointName='loan-endpoint')
+            status = response['EndpointStatus']
+            print(f'📊 Endpoint Status: {status}')
+            
+            # Wait for endpoint to be ready
+            while status in ['Creating', 'Updating']:
+                print('⏳ Waiting for endpoint...')
+                time.sleep(30)
+                response = sm.describe_endpoint(EndpointName='loan-endpoint')
+                status = response['EndpointStatus']
+                print(f'📊 Endpoint Status: {status}')
+                
+            if status == 'InService':
+                print('✅ Endpoint is ready!')
+            else:
+                print(f'❌ Endpoint failed: {status}')
+                
+        except Exception as e:
+            print(f'❌ Endpoint not found: {e}')
+        "
+
     - name: Test Endpoint
       if: github.event.inputs.action == 'deploy'
       run: |
-        sleep 60  # Wait for endpoint to be ready
         python -c "
         import boto3
         import json
         
-        runtime = boto3.client('sagemaker-runtime', region_name='eu-central-1')
-        
-        payload = {
-            'no_of_dependents': 2,
-            'education': 0,
-            'self_employed': 0,
-            'income_annum': 13.3,
-            'loan_amount': 15.4,
-            'loan_term': 12,
-            'credit_score': 750,
-            'total_asset': 15.9
-        }
+        sm = boto3.client('sagemaker', region_name='eu-central-1')
         
         try:
+            # Check if endpoint exists and is ready
+            response = sm.describe_endpoint(EndpointName='loan-endpoint')
+            if response['EndpointStatus'] != 'InService':
+                print('❌ Endpoint not ready for testing')
+                exit(1)
+                
+            runtime = boto3.client('sagemaker-runtime', region_name='eu-central-1')
+            
+            payload = {
+                'no_of_dependents': 2,
+                'education': 0,
+                'self_employed': 0,
+                'income_annum': 13.3,
+                'loan_amount': 15.4,
+                'loan_term': 12,
+                'credit_score': 750,
+                'total_asset': 15.9
+            }
+            
             response = runtime.invoke_endpoint(
                 EndpointName='loan-endpoint',
                 ContentType='application/json',
@@ -84,6 +128,7 @@ jobs:
             )
             result = response['Body'].read().decode()
             print(f'✅ Endpoint test successful: {result}')
+            
         except Exception as e:
             print(f'❌ Endpoint test failed: {e}')
         "
