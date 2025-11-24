@@ -30,4 +30,64 @@ jobs:
 
     - name: Test Endpoint
       run: |
-        python web_test.py
+        python -c "
+        import boto3
+        import json
+        import numpy as np
+        
+        runtime = boto3.client('sagemaker-runtime', region_name='eu-central-1')
+        
+        print('🏦 Loan Prediction Test')
+        print('=' * 30)
+        
+        # Test cases
+        test_cases = [
+            {
+                'name': 'High Income Graduate',
+                'data': {
+                    'no_of_dependents': 1,
+                    'education': 0,
+                    'self_employed': 0,
+                    'income_annum': np.log(8000000 + 1),
+                    'loan_amount': np.log(15000000 + 1),
+                    'loan_term': 10,
+                    'credit_score': 750,
+                    'total_asset': np.log(20000000 + 1)
+                }
+            },
+            {
+                'name': 'Low Income Non-Graduate',
+                'data': {
+                    'no_of_dependents': 3,
+                    'education': 1,
+                    'self_employed': 1,
+                    'income_annum': np.log(1500000 + 1),
+                    'loan_amount': np.log(5000000 + 1),
+                    'loan_term': 20,
+                    'credit_score': 400,
+                    'total_asset': np.log(3000000 + 1)
+                }
+            }
+        ]
+        
+        for i, test_case in enumerate(test_cases, 1):
+            print(f'\\n📊 Test Case {i}: {test_case[\"name\"]}')
+            print('-' * 40)
+            
+            try:
+                response = runtime.invoke_endpoint(
+                    EndpointName='loan-endpoint',
+                    ContentType='application/json',
+                    Body=json.dumps(test_case['data'])
+                )
+                
+                result = json.loads(response['Body'].read().decode())
+                prediction = result['prediction']
+                status = '✅ APPROVED' if prediction == 1 else '❌ REJECTED'
+                
+                print(f'Prediction: {prediction}')
+                print(f'Status: {status}')
+                
+            except Exception as e:
+                print(f'❌ Error: {e}')
+        "
