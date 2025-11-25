@@ -99,7 +99,7 @@
     </div>
 
     <script>
-        document.getElementById('loanForm').addEventListener('submit', function(e) {
+        document.getElementById('loanForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Get form data
@@ -121,23 +121,26 @@
             // Call your real model via proxy
             const PROXY_URL = 'https://o2jkugl6ed.execute-api.eu-central-1.amazonaws.com/prod/predict';
             
+            let prediction;
             try {
                 const response = await fetch(PROXY_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(modelInput)
+                    body: JSON.dumps(modelInput)
                 });
                 
                 const result = await response.json();
-                const prediction = result.prediction;
+                prediction = result.prediction;
+                console.log('Real model prediction:', prediction);
             } catch (error) {
                 console.error('Error calling model:', error);
                 // Fallback to demo logic if API fails
                 const income = parseInt(data.income);
                 const creditScore = parseInt(data.credit_score);
-                var prediction = (income > 4000000 && creditScore > 700) ? 1 : 0;
+                prediction = (income > 4000000 && creditScore > 700) ? 1 : 0;
+                console.log('Fallback prediction:', prediction);
             }
             
             const result = document.getElementById('result');
