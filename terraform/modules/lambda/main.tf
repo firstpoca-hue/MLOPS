@@ -9,7 +9,7 @@ resource "aws_lambda_function" "sagemaker_proxy" {
 
   depends_on = [
     aws_iam_role_policy_attachment.lambda_logs,
-    aws_iam_role_policy_attachment.lambda_sagemaker,
+    aws_iam_role_policy.lambda_sagemaker,
   ]
 }
 
@@ -54,11 +54,6 @@ resource "aws_iam_role_policy" "lambda_sagemaker" {
       }
     ]
   })
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_sagemaker" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_role_policy.lambda_sagemaker.arn
 }
 
 # Lambda permission for API Gateway
