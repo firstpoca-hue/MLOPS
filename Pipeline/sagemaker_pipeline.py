@@ -5,7 +5,7 @@ import time
 # Configuration
 REGION = "eu-central-1"
 ROLE_ARN = "arn:aws:iam::361509912577:role/SageMakerExecutionRole"
-BUCKET = "teamars"
+BUCKET = "teamars-1ee00834"
 
 def create_training_job():
     """Create SageMaker Training Job directly - most reliable approach"""

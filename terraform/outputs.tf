@@ -23,3 +23,13 @@ output "codebuild_project_name" {
   description = "Name of the CodeBuild project"
   value       = module.codebuild.project_name
 }
+
+output "api_gateway_url" {
+  description = "URL of the API Gateway for web interface"
+  value       = module.api_gateway.api_gateway_url
+}
+
+output "lambda_function_name" {
+  description = "Name of the Lambda proxy function"
+  value       = module.lambda.lambda_function_name
+}

@@ -53,7 +53,7 @@ def check_model_artifacts():
     try:
         # List model artifacts
         response = s3_client.list_objects_v2(
-            Bucket='teamars',
+            Bucket='teamars-1ee00834',
             Prefix='model-output/'
         )
         
@@ -65,7 +65,7 @@ def check_model_artifacts():
             
         # Check source code
         response = s3_client.list_objects_v2(
-            Bucket='teamars',
+            Bucket='teamars-1ee00834',
             Prefix='code/'
         )
         

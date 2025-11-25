@@ -4,7 +4,7 @@ import time
 # ================== CONFIG ==================
 REGION = "eu-central-1"
 ROLE_ARN = "arn:aws:iam::361509912577:role/SageMakerExecutionRole"
-BUCKET = "teamars"
+BUCKET = "teamars-1ee00834"
 MODEL_PACKAGE_GROUP_NAME = "loan-model-package-group"
 ENDPOINT_NAME = "loan-endpoint"
 INSTANCE_TYPE = "ml.m5.large"

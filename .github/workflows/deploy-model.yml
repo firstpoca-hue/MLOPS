@@ -41,7 +41,7 @@ jobs:
       if: github.event.inputs.action == 'deploy'
       run: |
         echo "🔍 Checking for trained models in S3..."
-        aws s3 ls s3://teamars/model-output/ --recursive || echo "No models found"
+        aws s3 ls s3://teamars-1ee00834/model-output/ --recursive || echo "No models found"
         
     - name: Cleanup Failed Endpoint
       if: github.event.inputs.action == 'deploy'

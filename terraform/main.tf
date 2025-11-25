@@ -27,3 +27,19 @@ module "codebuild" {
 #   github_repo                     = var.github_repo
 #   github_branch                   = var.github_branch
 # }
+
+# API Gateway for web interface
+module "api_gateway" {
+  source            = "./modules/api-gateway"
+  api_name          = "${var.project_name}-api"
+  stage_name        = "prod"
+  lambda_invoke_arn = module.lambda.lambda_invoke_arn
+}
+
+# Lambda function for SageMaker proxy
+module "lambda" {
+  source                    = "./modules/lambda"
+  function_name            = "${var.project_name}-proxy"
+  lambda_zip_path          = data.archive_file.lambda_zip.output_path
+  api_gateway_execution_arn = module.api_gateway.api_gateway_execution_arn
+}

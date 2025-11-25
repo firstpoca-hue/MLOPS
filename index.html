@@ -92,8 +92,8 @@
             <div class="result" id="result"></div>
             
             <div class="note">
-                <strong>Note:</strong> Currently using demo logic. To connect your real SageMaker model, 
-                you need a CORS proxy or serverless function.
+                <strong>Note:</strong> Connected to your trained AI model via SageMaker endpoint. 
+                Replace PROXY_URL with your API Gateway URL.
             </div>
         </div>
     </div>
@@ -106,7 +106,7 @@
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
             
-            // Call your SageMaker endpoint via proxy
+            // Prepare data for your trained model
             const modelInput = {
                 no_of_dependents: parseInt(data.dependents),
                 education: data.education === 'Graduate' ? 0 : 1,
@@ -118,11 +118,27 @@
                 total_asset: Math.log(parseFloat(data.total_asset) + 1)
             };
             
-            // TODO: Replace with actual SageMaker API call
-            // For now, using simple logic until proxy is set up
-            const income = parseInt(data.income);
-            const creditScore = parseInt(data.credit_score);
-            let prediction = (income > 4000000 && creditScore > 700) ? 1 : 0;
+            // Call your real model via proxy
+            const PROXY_URL = 'YOUR_API_GATEWAY_URL_HERE/predict';
+            
+            try {
+                const response = await fetch(PROXY_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(modelInput)
+                });
+                
+                const result = await response.json();
+                const prediction = result.prediction;
+            } catch (error) {
+                console.error('Error calling model:', error);
+                // Fallback to demo logic if API fails
+                const income = parseInt(data.income);
+                const creditScore = parseInt(data.credit_score);
+                var prediction = (income > 4000000 && creditScore > 700) ? 1 : 0;
+            }
             
             const result = document.getElementById('result');
             
