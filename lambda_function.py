@@ -8,9 +8,10 @@ from io import BytesIO
 def lambda_handler(event, context):
     """Lambda function to serve HTML UI and handle predictions"""
     
-    # Handle GET request - serve HTML UI
-    if event['httpMethod'] == 'GET':
-        html_content = """
+    try:
+        # Handle GET request - serve HTML UI
+        if event.get('httpMethod') == 'GET':
+            html_content = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -146,20 +147,19 @@ def lambda_handler(event, context):
     </script>
 </body>
 </html>
-        """
+            """
+            
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'text/html',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': html_content
+            }
         
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'text/html',
-                'Access-Control-Allow-Origin': '*'
-            },
-            'body': html_content
-        }
-    
-    # Handle POST request - make prediction
-    elif event['httpMethod'] == 'POST':
-        try:
+        # Handle POST request - make prediction
+        elif event.get('httpMethod') == 'POST':
             # Parse input data
             if not event.get('body'):
                 return {
@@ -179,11 +179,11 @@ def lambda_handler(event, context):
                 response = s3.get_object(Bucket=bucket, Key='model-output/loan-model-1764243156/output/model.pkl')
                 model_data = response['Body'].read()
                 model = joblib.load(BytesIO(model_data))
-            except:
+            except Exception as model_error:
                 return {
                     'statusCode': 500,
                     'headers': {'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Model not found. Please train the model first.'})
+                    'body': json.dumps({'error': f'Model not found: {str(model_error)}'})
                 }
             
             # Prepare features
@@ -223,41 +223,18 @@ def lambda_handler(event, context):
                 },
                 'body': json.dumps(result)
             }
-            
-        except Exception as e:
+        
+        # Handle other methods
+        else:
             return {
-                'statusCode': 500,
+                'statusCode': 405,
                 'headers': {'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': str(e)})
+                'body': json.dumps({'error': 'Method not allowed'})
             }
-    
-    # Handle other methods
-    else:
+            
+    except Exception as e:
         return {
-            'statusCode': 405,
+            'statusCode': 500,
             'headers': {'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'})
-        } {
-                'statusCode': 500,
-                'headers': {'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': str(e)})
-            }
-    
-    # Handle OPTIONS for CORS
-    elif event['httpMethod'] == 'OPTIONS':
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
-            },
-            'body': ''
-        }
-    
-    else:
-        return {
-            'statusCode': 405,
-            'headers': {'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'})
+            'body': json.dumps({'error': str(e)})
         }
