@@ -1,12 +1,9 @@
 import json
 import boto3
-import joblib
-import pandas as pd
 import numpy as np
-from io import BytesIO
 
 def lambda_handler(event, context):
-    """Lambda function to serve HTML UI and handle predictions"""
+    """Lambda function to serve HTML UI and handle predictions via SageMaker Endpoint"""
     
     try:
         # Handle GET request - serve HTML UI
@@ -156,53 +153,57 @@ def lambda_handler(event, context):
             
             body = json.loads(event['body'])
             
-            s3 = boto3.client('s3')
-            bucket = 'teamars-1ee00834-23d58925a'
-            
-            try:
-                response = s3.get_object(Bucket=bucket, Key='model-output/loan-model-1764243156/output/model.pkl')
-                model_data = response['Body'].read()
-                model = joblib.load(BytesIO(model_data))
-            except Exception as model_error:
-                return {
-                    'statusCode': 500,
-                    'headers': {'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': f'Model not found: {str(model_error)}'})
-                }
-            
-            features = {
-                'no_of_dependents': body['no_of_dependents'],
-                'education': 0 if body['education'] == 'Graduate' else 1,
-                'self_employed': 1 if body['self_employed'] == 'Yes' else 0,
-                'income_annum': np.log(body['income_annum'] + 1),
-                'loan_amount': np.log(body['loan_amount'] + 1),
-                'loan_term': body['loan_term'],
-                'credit_score': body['credit_score'],
-                'total_assets': np.log(
+            # Prepare features for SageMaker endpoint
+            features = [
+                body['no_of_dependents'],
+                0 if body['education'] == 'Graduate' else 1,
+                1 if body['self_employed'] == 'Yes' else 0,
+                np.log(body['income_annum'] + 1),
+                np.log(body['loan_amount'] + 1),
+                body['loan_term'],
+                body['credit_score'],
+                np.log(
                     body['residential_assets_value'] + 
                     body['commercial_assets_value'] + 
                     body['luxury_assets_value'] + 
                     body['bank_asset_value'] + 1
                 )
-            }
+            ]
             
-            df = pd.DataFrame([features])
-            prediction = model.predict(df)[0]
-            probability = model.predict_proba(df)[0]
+            # Call SageMaker endpoint
+            sagemaker_runtime = boto3.client('sagemaker-runtime')
+            endpoint_name = 'loan-endpoint'  # Matches deploy_model.py
             
-            result = {
-                'prediction': 'Approved' if prediction == 1 else 'Rejected',
-                'confidence': float(max(probability))
-            }
-            
-            return {
-                'statusCode': 200,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                'body': json.dumps(result)
-            }
+            try:
+                response = sagemaker_runtime.invoke_endpoint(
+                    EndpointName=endpoint_name,
+                    ContentType='text/csv',
+                    Body=','.join(map(str, features))
+                )
+                
+                result_body = response['Body'].read().decode('utf-8')
+                prediction = float(result_body.strip())
+                
+                result = {
+                    'prediction': 'Approved' if prediction >= 0.5 else 'Rejected',
+                    'confidence': float(prediction if prediction >= 0.5 else 1 - prediction)
+                }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps(result)
+                }
+                
+            except Exception as endpoint_error:
+                return {
+                    'statusCode': 500,
+                    'headers': {'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'SageMaker endpoint error: {str(endpoint_error)}'})
+                }
         
         else:
             return {
