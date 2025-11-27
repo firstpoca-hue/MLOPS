@@ -165,11 +165,11 @@ def lambda_handler(event, context):
             
             # Load model from S3
             s3 = boto3.client('s3')
-            bucket = 'teamars-1ee00834'
+            bucket = 'teamars-1ee00834-23d58925a'
             
             # Try to get the latest model
             try:
-                response = s3.get_object(Bucket=bucket, Key='model.pkl')
+                response = s3.get_object(Bucket=bucket, Key='model-output/loan-model-1764243156/output/model.pkl')
                 model_data = response['Body'].read()
                 model = joblib.load(BytesIO(model_data))
             except:
