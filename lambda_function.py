@@ -11,8 +11,7 @@ def lambda_handler(event, context):
     try:
         # Handle GET request - serve HTML UI
         if event.get('httpMethod') == 'GET':
-            html_content = """
-<!DOCTYPE html>
+            html_content = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -110,7 +109,6 @@ def lambda_handler(event, context):
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
             
-            // Convert numeric fields
             ['no_of_dependents', 'income_annum', 'loan_amount', 'loan_term', 'credit_score', 
              'residential_assets_value', 'commercial_assets_value', 'luxury_assets_value', 'bank_asset_value'].forEach(field => {
                 data[field] = parseInt(data[field]);
@@ -127,27 +125,17 @@ def lambda_handler(event, context):
                 
                 const resultDiv = document.getElementById('result');
                 if (result.prediction === 'Approved') {
-                    resultDiv.innerHTML = `<div class="result approved">
-                        <h3>✅ Loan Approved!</h3>
-                        <p>Confidence: ${(result.confidence * 100).toFixed(1)}%</p>
-                    </div>`;
+                    resultDiv.innerHTML = '<div class="result approved"><h3>✅ Loan Approved!</h3><p>Confidence: ' + (result.confidence * 100).toFixed(1) + '%</p></div>';
                 } else {
-                    resultDiv.innerHTML = `<div class="result rejected">
-                        <h3>❌ Loan Rejected</h3>
-                        <p>Confidence: ${(result.confidence * 100).toFixed(1)}%</p>
-                    </div>`;
+                    resultDiv.innerHTML = '<div class="result rejected"><h3>❌ Loan Rejected</h3><p>Confidence: ' + (result.confidence * 100).toFixed(1) + '%</p></div>';
                 }
             } catch (error) {
-                document.getElementById('result').innerHTML = `<div class="result rejected">
-                    <h3>Error</h3>
-                    <p>${error.message}</p>
-                </div>`;
+                document.getElementById('result').innerHTML = '<div class="result rejected"><h3>Error</h3><p>' + error.message + '</p></div>';
             }
         });
     </script>
 </body>
-</html>
-            """
+</html>"""
             
             return {
                 'statusCode': 200,
@@ -158,9 +146,7 @@ def lambda_handler(event, context):
                 'body': html_content
             }
         
-        # Handle POST request - make prediction
         elif event.get('httpMethod') == 'POST':
-            # Parse input data
             if not event.get('body'):
                 return {
                     'statusCode': 400,
@@ -170,11 +156,9 @@ def lambda_handler(event, context):
             
             body = json.loads(event['body'])
             
-            # Load model from S3
             s3 = boto3.client('s3')
             bucket = 'teamars-1ee00834-23d58925a'
             
-            # Try to get the latest model
             try:
                 response = s3.get_object(Bucket=bucket, Key='model-output/loan-model-1764243156/output/model.pkl')
                 model_data = response['Body'].read()
@@ -186,7 +170,6 @@ def lambda_handler(event, context):
                     'body': json.dumps({'error': f'Model not found: {str(model_error)}'})
                 }
             
-            # Prepare features
             features = {
                 'no_of_dependents': body['no_of_dependents'],
                 'education': 0 if body['education'] == 'Graduate' else 1,
@@ -203,10 +186,7 @@ def lambda_handler(event, context):
                 )
             }
             
-            # Create DataFrame
             df = pd.DataFrame([features])
-            
-            # Make prediction
             prediction = model.predict(df)[0]
             probability = model.predict_proba(df)[0]
             
@@ -224,7 +204,6 @@ def lambda_handler(event, context):
                 'body': json.dumps(result)
             }
         
-        # Handle other methods
         else:
             return {
                 'statusCode': 405,
