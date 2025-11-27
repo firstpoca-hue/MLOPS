@@ -20,6 +20,11 @@ phases:
   build:
     commands:
       - echo "Build phase started on `date`"
+      - echo "BUILDSPEC VERSION: 2025-11-27-FINAL"
+      - echo "Current directory contents:"
+      - ls -la
+      - echo "Looking for Pipeline directory:"
+      - find . -name "Pipeline" -type d
       - echo "Running MLOps pipeline..."
       - python Pipeline/sagemaker_pipeline.py
       - echo "Pipeline execution completed"
