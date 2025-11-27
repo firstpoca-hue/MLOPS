@@ -24,4 +24,7 @@ phases:
 
   post_build:
     commands:
+      - echo "=== DEPLOYING SAGEMAKER ENDPOINT ==="
+      - python deploy/deploy_model.py
+      - echo "=== ENDPOINT DEPLOYMENT INITIATED ==="
       - echo "=== POST BUILD COMPLETED ==="
