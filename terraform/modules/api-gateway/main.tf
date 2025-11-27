@@ -139,4 +139,20 @@ resource "aws_api_gateway_deployment" "api_deployment" {
 
   rest_api_id = aws_api_gateway_rest_api.loan_prediction_api.id
   stage_name  = var.stage_name
+  
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.predict.id,
+      aws_api_gateway_method.root_get.id,
+      aws_api_gateway_method.root_post.id,
+      aws_api_gateway_method.predict_post.id,
+      aws_api_gateway_integration.root_get_integration.id,
+      aws_api_gateway_integration.root_post_integration.id,
+      aws_api_gateway_integration.lambda_integration.id,
+    ]))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
