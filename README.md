@@ -82,3 +82,4 @@ cd terraform
 - **CloudWatch**: Logs and monitoring
 - **Model Registry**: Model versions and approvals# MLOps Pipeline Ready - Thu Nov 27 14:11:59 IST 2025
 # Force pipeline trigger
+# Force pipeline trigger
