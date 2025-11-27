@@ -1,3 +1,9 @@
+# CodeStar connection for GitHub
+resource "aws_codestar_connections_connection" "github" {
+  name          = "${var.project_name}-github-connection"
+  provider_type = "GitHub"
+}
+
 resource "aws_codepipeline" "mlops_pipeline" {
   name     = "${var.project_name}-pipeline"
   role_arn = var.codepipeline_role_arn
@@ -13,16 +19,15 @@ resource "aws_codepipeline" "mlops_pipeline" {
     action {
       name             = "Source"
       category         = "Source"
-      owner            = "ThirdParty"
-      provider         = "GitHub"
+      owner            = "AWS"
+      provider         = "CodeStarSourceConnection"
       version          = "1"
       output_artifacts = ["source_output"]
 
       configuration = {
-        Owner      = var.github_owner
-        Repo       = var.github_repo
-        Branch     = var.github_branch
-        OAuthToken = var.github_token
+        ConnectionArn    = aws_codestar_connections_connection.github.arn
+        FullRepositoryId = "${var.github_owner}/${var.github_repo}"
+        BranchName       = var.github_branch
       }
     }
   }

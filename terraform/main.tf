@@ -16,17 +16,17 @@ module "codebuild" {
   codebuild_role_arn = module.iam.codebuild_role_arn
 }
 
-# CodePipeline module disabled - using GitHub Actions instead
-# module "codepipeline" {
-#   source                          = "./modules/codepipeline"
-#   project_name                    = var.project_name
-#   codepipeline_role_arn           = module.iam.codepipeline_role_arn
-#   pipeline_artifacts_bucket_name  = module.s3.pipeline_artifacts_bucket_name
-#   codebuild_project_name          = module.codebuild.project_name
-#   github_owner                    = var.github_owner
-#   github_repo                     = var.github_repo
-#   github_branch                   = var.github_branch
-# }
+# CodePipeline module - Native AWS CI/CD
+module "codepipeline" {
+  source                          = "./modules/codepipeline"
+  project_name                    = var.project_name
+  codepipeline_role_arn           = module.iam.codepipeline_role_arn
+  pipeline_artifacts_bucket_name  = module.s3.pipeline_artifacts_bucket_name
+  codebuild_project_name          = module.codebuild.project_name
+  github_owner                    = var.github_owner
+  github_repo                     = var.github_repo
+  github_branch                   = var.github_branch
+}
 
 # API Gateway for web interface
 module "api_gateway" {

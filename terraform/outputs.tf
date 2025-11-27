@@ -13,11 +13,10 @@ output "sagemaker_role_arn" {
   value       = module.iam.sagemaker_role_arn
 }
 
-# CodePipeline replaced by GitHub Actions
-# output "codepipeline_name" {
-#   description = "Name of the CodePipeline"
-#   value       = module.codepipeline.pipeline_name
-# }
+output "codepipeline_name" {
+  description = "Name of the CodePipeline"
+  value       = module.codepipeline.pipeline_name
+}
 
 output "codebuild_project_name" {
   description = "Name of the CodeBuild project"
