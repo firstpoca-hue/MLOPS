@@ -45,24 +45,7 @@ resource "aws_codepipeline" "mlops_pipeline" {
     }
   }
 
-  stage {
-    name = "Deploy"
 
-    action {
-      name            = "Deploy"
-      category        = "Deploy"
-      owner           = "AWS"
-      provider        = "S3"
-      input_artifacts = ["build_output"]
-      version         = "1"
-
-      configuration = {
-        BucketName = var.pipeline_artifacts_bucket_name
-        Extract    = "true"
-        ObjectKey  = "deployments/"
-      }
-    }
-  }
 
   tags = {
     Name        = "${var.project_name}-pipeline"
@@ -71,26 +54,4 @@ resource "aws_codepipeline" "mlops_pipeline" {
   }
 }
 
-# CloudWatch Event Rule for automatic pipeline triggers
-resource "aws_cloudwatch_event_rule" "codepipeline_trigger" {
-  name        = "${var.project_name}-pipeline-trigger"
-  description = "Trigger CodePipeline on repository changes"
-
-  event_pattern = jsonencode({
-    source      = ["aws.codecommit"]
-    detail-type = ["CodeCommit Repository State Change"]
-    resources   = [var.codecommit_repo_arn]
-    detail = {
-      event = ["referenceCreated", "referenceUpdated"]
-      referenceType = ["branch"]
-      referenceName = [var.github_branch]
-    }
-  })
-}
-
-resource "aws_cloudwatch_event_target" "codepipeline" {
-  rule      = aws_cloudwatch_event_rule.codepipeline_trigger.name
-  target_id = "TriggerCodePipeline"
-  arn       = aws_codepipeline.mlops_pipeline.arn
-  role_arn  = var.codepipeline_role_arn
-}
+# Pipeline triggers automatically via GitHub CodeStar Connection
