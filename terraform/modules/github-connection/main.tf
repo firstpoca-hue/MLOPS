@@ -1,6 +1,6 @@
 # GitHub Connection using CodeStar Connections (Recommended)
 resource "aws_codestarconnections_connection" "github" {
-  name          = "${var.project_name}-github-connection"
+  name          = "${var.project_name}-github"
   provider_type = "GitHub"
 
   tags = {

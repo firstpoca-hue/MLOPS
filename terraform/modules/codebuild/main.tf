@@ -48,22 +48,7 @@ resource "aws_codebuild_project" "mlops_build" {
   }
 }
 
-# GitHub webhook for automatic builds
-resource "aws_codebuild_webhook" "mlops_webhook" {
-  project_name = aws_codebuild_project.mlops_build.name
-  build_type   = "BUILD"
-
-  filter_group {
-    filter {
-      type    = "EVENT"
-      pattern = "PUSH"
-    }
-
-    filter {
-      type    = "HEAD_REF"
-      pattern = "refs/heads/main"
-    }
-  }
-}
+# Note: Webhook not needed when using CodePipeline
+# CodePipeline handles GitHub integration via CodeStar Connections
 
 data "aws_region" "current" {}

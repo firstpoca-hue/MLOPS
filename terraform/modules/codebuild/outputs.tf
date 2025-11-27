@@ -9,6 +9,6 @@ output "project_arn" {
 }
 
 output "webhook_url" {
-  description = "GitHub webhook URL"
-  value       = aws_codebuild_webhook.mlops_webhook.payload_url
+  description = "GitHub webhook URL (handled by CodePipeline)"
+  value       = "Not applicable - CodePipeline handles GitHub integration"
 }

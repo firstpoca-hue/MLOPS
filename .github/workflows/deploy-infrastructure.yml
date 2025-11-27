@@ -64,7 +64,7 @@ jobs:
         echo "✅ Infrastructure deployed successfully!"
         echo "⚠️  Next step: Complete GitHub connection in AWS Console"
         echo "📝 Go to: CodePipeline → Settings → Connections"
-        echo "🔗 Find: mlops-loan-model-github-connection (PENDING)"
+        echo "🔗 Find: mlops-loan-model-github (PENDING)"
         echo "✅ Click: Update pending connection and authorize GitHub"
         
     - name: Output Important URLs
