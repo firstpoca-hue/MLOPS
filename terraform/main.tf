@@ -11,9 +11,17 @@ module "iam" {
 }
 
 module "codebuild" {
-  source             = "./modules/codebuild"
-  project_name       = var.project_name
-  codebuild_role_arn = module.iam.codebuild_role_arn
+  source              = "./modules/codebuild"
+  project_name        = var.project_name
+  codebuild_role_arn  = module.iam.codebuild_role_arn
+  sagemaker_role_arn  = module.iam.sagemaker_role_arn
+  s3_bucket_name      = module.s3.ml_bucket_name
+}
+
+# GitHub Connection
+module "github_connection" {
+  source       = "./modules/github-connection"
+  project_name = var.project_name
 }
 
 # CodePipeline module - Native AWS CI/CD
@@ -26,6 +34,7 @@ module "codepipeline" {
   github_owner                    = var.github_owner
   github_repo                     = var.github_repo
   github_branch                   = var.github_branch
+  github_connection_arn           = module.github_connection.connection_arn
 }
 
 # API Gateway for web interface

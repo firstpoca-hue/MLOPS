@@ -1,15 +1,19 @@
 variable "project_name" {
-  description = "Project name"
+  description = "Name of the project"
   type        = string
 }
 
 variable "codebuild_role_arn" {
-  description = "ARN of the CodeBuild IAM role"
+  description = "ARN of the CodeBuild service role"
   type        = string
 }
 
-variable "buildspec_path" {
-  description = "Path to buildspec file"
+variable "sagemaker_role_arn" {
+  description = "ARN of the SageMaker execution role"
   type        = string
-  default     = "Pipeline/buildspec.yml"
+}
+
+variable "s3_bucket_name" {
+  description = "Name of the S3 bucket for ML artifacts"
+  type        = string
 }

@@ -1,15 +1,15 @@
 variable "project_name" {
-  description = "Project name"
+  description = "Name of the project"
   type        = string
 }
 
 variable "codepipeline_role_arn" {
-  description = "ARN of the CodePipeline IAM role"
+  description = "ARN of the CodePipeline service role"
   type        = string
 }
 
 variable "pipeline_artifacts_bucket_name" {
-  description = "Name of the pipeline artifacts bucket"
+  description = "Name of the S3 bucket for pipeline artifacts"
   type        = string
 }
 
@@ -29,7 +29,18 @@ variable "github_repo" {
 }
 
 variable "github_branch" {
-  description = "GitHub branch"
+  description = "GitHub branch to track"
+  type        = string
+  default     = "main"
+}
+
+variable "github_connection_arn" {
+  description = "ARN of the GitHub CodeStar connection"
   type        = string
 }
 
+variable "codecommit_repo_arn" {
+  description = "ARN of CodeCommit repository (if using CodeCommit instead of GitHub)"
+  type        = string
+  default     = ""
+}

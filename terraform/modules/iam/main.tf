@@ -81,17 +81,25 @@ resource "aws_iam_role_policy" "codebuild_policy" {
         Effect = "Allow"
         Action = [
           "s3:GetObject",
-          "s3:PutObject"
+          "s3:PutObject",
+          "s3:ListBucket"
         ]
         Resource = [
+          var.pipeline_artifacts_bucket_arn,
           "${var.pipeline_artifacts_bucket_arn}/*",
+          var.ml_bucket_arn,
           "${var.ml_bucket_arn}/*"
         ]
       },
       {
         Effect = "Allow"
         Action = [
-          "sagemaker:*"
+          "sagemaker:*",
+          "iam:PassRole",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:GetAuthorizationToken"
         ]
         Resource = "*"
       }

@@ -1,0 +1,40 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - echo "Installing dependencies..."
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+      - pip install boto3 sagemaker pandas scikit-learn joblib
+
+  pre_build:
+    commands:
+      - echo "Pre-build phase started on `date`"
+      - echo "Setting up AWS credentials and region"
+      - aws --version
+      - echo $AWS_DEFAULT_REGION
+
+  build:
+    commands:
+      - echo "Build phase started on `date`"
+      - echo "Running MLOps pipeline..."
+      - cd pipeline
+      - python sagemaker_pipeline.py
+      - echo "Pipeline execution completed"
+
+  post_build:
+    commands:
+      - echo "Post-build phase completed on `date`"
+      - echo "MLOps pipeline finished successfully"
+
+artifacts:
+  files:
+    - '**/*'
+  name: mlops-artifacts-$(date +%Y-%m-%d)
+
+cache:
+  paths:
+    - '/root/.cache/pip/**/*'

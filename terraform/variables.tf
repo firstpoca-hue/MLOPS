@@ -32,5 +32,5 @@ variable "github_branch" {
   default     = "main"
 }
 
-# GitHub token not needed for infrastructure deployment
-# CodePipeline will be configured without GitHub integration
+# GitHub token no longer needed with CodeStar Connections
+# Connection will be established through AWS Console
