@@ -21,7 +21,7 @@ phases:
     commands:
       - echo "Build phase started on `date`"
       - echo "Running MLOps pipeline..."
-      - cd pipeline
+      - cd Pipeline
       - python sagemaker_pipeline.py
       - echo "Pipeline execution completed"
 
