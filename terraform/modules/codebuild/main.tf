@@ -38,7 +38,7 @@ resource "aws_codebuild_project" "mlops_build" {
 
   source {
     type = "CODEPIPELINE"
-    buildspec = "buildspec.yml"
+    buildspec = "version: 0.2\nphases:\n  install:\n    runtime-versions:\n      python: 3.8\n    commands:\n      - pip install boto3 sagemaker pandas scikit-learn joblib numpy\n  build:\n    commands:\n      - echo 'MLOps Pipeline Starting'\n      - ls -la\n      - python Pipeline/sagemaker_pipeline.py\n      - echo 'Pipeline Completed'"
   }
 
   tags = {
