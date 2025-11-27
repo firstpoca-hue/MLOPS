@@ -77,6 +77,18 @@ resource "aws_api_gateway_integration" "root_post_integration" {
   uri                    = var.lambda_invoke_arn
 }
 
+# Mock Integration for Root OPTIONS (CORS)
+resource "aws_api_gateway_integration" "root_options_integration" {
+  rest_api_id = aws_api_gateway_rest_api.loan_prediction_api.id
+  resource_id = aws_api_gateway_rest_api.loan_prediction_api.root_resource_id
+  http_method = aws_api_gateway_method.root_options.http_method
+
+  type = "MOCK"
+  request_templates = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+}
+
 # Lambda Integration for POST
 resource "aws_api_gateway_integration" "lambda_integration" {
   rest_api_id = aws_api_gateway_rest_api.loan_prediction_api.id
@@ -97,6 +109,34 @@ resource "aws_api_gateway_integration" "options_integration" {
   type = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
+  }
+}
+
+# Method Response for Root OPTIONS
+resource "aws_api_gateway_method_response" "root_options_response" {
+  rest_api_id = aws_api_gateway_rest_api.loan_prediction_api.id
+  resource_id = aws_api_gateway_rest_api.loan_prediction_api.root_resource_id
+  http_method = aws_api_gateway_method.root_options.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+
+# Integration Response for Root OPTIONS
+resource "aws_api_gateway_integration_response" "root_options_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.loan_prediction_api.id
+  resource_id = aws_api_gateway_rest_api.loan_prediction_api.root_resource_id
+  http_method = aws_api_gateway_method.root_options.http_method
+  status_code = aws_api_gateway_method_response.root_options_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,POST,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
 
@@ -133,6 +173,7 @@ resource "aws_api_gateway_deployment" "api_deployment" {
   depends_on = [
     aws_api_gateway_integration.root_get_integration,
     aws_api_gateway_integration.root_post_integration,
+    aws_api_gateway_integration.root_options_integration,
     aws_api_gateway_integration.lambda_integration,
     aws_api_gateway_integration.options_integration,
   ]
