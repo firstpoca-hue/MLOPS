@@ -161,6 +161,13 @@ def lambda_handler(event, context):
     elif event['httpMethod'] == 'POST':
         try:
             # Parse input data
+            if not event.get('body'):
+                return {
+                    'statusCode': 400,
+                    'headers': {'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Request body is required'})
+                }
+            
             body = json.loads(event['body'])
             
             # Load model from S3
@@ -219,6 +226,18 @@ def lambda_handler(event, context):
             
         except Exception as e:
             return {
+                'statusCode': 500,
+                'headers': {'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': str(e)})
+            }
+    
+    # Handle other methods
+    else:
+        return {
+            'statusCode': 405,
+            'headers': {'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Method not allowed'})
+        } {
                 'statusCode': 500,
                 'headers': {'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'error': str(e)})
