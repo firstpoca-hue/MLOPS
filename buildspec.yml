@@ -28,8 +28,7 @@ phases:
       - find . -name "Pipeline" -type d
       - find . -name "pipeline" -type d
       - echo "Running MLOps pipeline..."
-      - cd Pipeline
-      - python sagemaker_pipeline.py
+      - python Pipeline/sagemaker_pipeline.py
       - echo "Pipeline execution completed"
 
   post_build:
