@@ -111,6 +111,24 @@ if __name__ == "__main__":
         
         if success:
             print("🎉 Training completed successfully!")
+            
+            # Download model for deployment
+            s3 = boto3.client('s3')
+            try:
+                # Create artifacts directory
+                os.makedirs('artifacts', exist_ok=True)
+                
+                # Download model from S3
+                s3.download_file(BUCKET, f'model-output/{job_name}/output/model.tar.gz', 'artifacts/model.tar.gz')
+                
+                # Extract model.pkl
+                import tarfile
+                with tarfile.open('artifacts/model.tar.gz', 'r:gz') as tar:
+                    tar.extractall('artifacts/')
+                
+                print("✅ Model downloaded for deployment")
+            except Exception as e:
+                print(f"⚠️ Could not download model: {e}")
         else:
             print("❌ Training failed")
             exit(1)

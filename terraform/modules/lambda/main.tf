@@ -48,7 +48,8 @@ resource "aws_iam_role_policy" "lambda_sagemaker" {
       {
         Effect = "Allow"
         Action = [
-          "sagemaker:InvokeEndpoint"
+          "sagemaker:InvokeEndpoint",
+          "s3:GetObject"
         ]
         Resource = "*"
       }

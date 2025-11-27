@@ -45,7 +45,23 @@ resource "aws_codepipeline" "mlops_pipeline" {
     }
   }
 
+  stage {
+    name = "Deploy"
 
+    action {
+      name            = "Deploy"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "S3"
+      input_artifacts = ["build_output"]
+      version         = "1"
+
+      configuration = {
+        BucketName = var.pipeline_artifacts_bucket_name
+        Extract    = "true"
+      }
+    }
+  }
 
   tags = {
     Name        = "${var.project_name}-pipeline"
