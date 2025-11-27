@@ -80,4 +80,4 @@ cd terraform
 - **CodePipeline**: Build status and logs
 - **SageMaker**: Pipeline execution and model metrics
 - **CloudWatch**: Logs and monitoring
-- **Model Registry**: Model versions and approvals
+- **Model Registry**: Model versions and approvals# MLOps Pipeline Ready - Thu Nov 27 14:11:59 IST 2025
