@@ -8,6 +8,30 @@ resource "aws_api_gateway_rest_api" "loan_prediction_api" {
   }
 }
 
+# Root GET Method for serving HTML
+resource "aws_api_gateway_method" "root_get" {
+  rest_api_id   = aws_api_gateway_rest_api.loan_prediction_api.id
+  resource_id   = aws_api_gateway_rest_api.loan_prediction_api.root_resource_id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+# Root POST Method for predictions
+resource "aws_api_gateway_method" "root_post" {
+  rest_api_id   = aws_api_gateway_rest_api.loan_prediction_api.id
+  resource_id   = aws_api_gateway_rest_api.loan_prediction_api.root_resource_id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+# Root OPTIONS Method for CORS
+resource "aws_api_gateway_method" "root_options" {
+  rest_api_id   = aws_api_gateway_rest_api.loan_prediction_api.id
+  resource_id   = aws_api_gateway_rest_api.loan_prediction_api.root_resource_id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
 # API Gateway Resource
 resource "aws_api_gateway_resource" "predict" {
   rest_api_id = aws_api_gateway_rest_api.loan_prediction_api.id
@@ -29,6 +53,28 @@ resource "aws_api_gateway_method" "predict_options" {
   resource_id   = aws_api_gateway_resource.predict.id
   http_method   = "OPTIONS"
   authorization = "NONE"
+}
+
+# Lambda Integration for Root GET
+resource "aws_api_gateway_integration" "root_get_integration" {
+  rest_api_id = aws_api_gateway_rest_api.loan_prediction_api.id
+  resource_id = aws_api_gateway_rest_api.loan_prediction_api.root_resource_id
+  http_method = aws_api_gateway_method.root_get.http_method
+
+  integration_http_method = "POST"
+  type                   = "AWS_PROXY"
+  uri                    = var.lambda_invoke_arn
+}
+
+# Lambda Integration for Root POST
+resource "aws_api_gateway_integration" "root_post_integration" {
+  rest_api_id = aws_api_gateway_rest_api.loan_prediction_api.id
+  resource_id = aws_api_gateway_rest_api.loan_prediction_api.root_resource_id
+  http_method = aws_api_gateway_method.root_post.http_method
+
+  integration_http_method = "POST"
+  type                   = "AWS_PROXY"
+  uri                    = var.lambda_invoke_arn
 }
 
 # Lambda Integration for POST
@@ -85,6 +131,8 @@ resource "aws_api_gateway_integration_response" "options_integration_response" {
 # API Gateway Deployment
 resource "aws_api_gateway_deployment" "api_deployment" {
   depends_on = [
+    aws_api_gateway_integration.root_get_integration,
+    aws_api_gateway_integration.root_post_integration,
     aws_api_gateway_integration.lambda_integration,
     aws_api_gateway_integration.options_integration,
   ]
