@@ -153,23 +153,6 @@ def lambda_handler(event, context):
             
             body = json.loads(event['body'])
             
-            # Prepare features for SageMaker endpoint
-            features = [
-                body['no_of_dependents'],
-                0 if body['education'] == 'Graduate' else 1,
-                1 if body['self_employed'] == 'Yes' else 0,
-                np.log(body['income_annum'] + 1),
-                np.log(body['loan_amount'] + 1),
-                body['loan_term'],
-                body['credit_score'],
-                np.log(
-                    body['residential_assets_value'] + 
-                    body['commercial_assets_value'] + 
-                    body['luxury_assets_value'] + 
-                    body['bank_asset_value'] + 1
-                )
-            ]
-            
             # Call SageMaker endpoint
             sagemaker_runtime = boto3.client('sagemaker-runtime')
             endpoint_name = 'loan-endpoint'  # Matches deploy_model.py
@@ -177,16 +160,16 @@ def lambda_handler(event, context):
             try:
                 response = sagemaker_runtime.invoke_endpoint(
                     EndpointName=endpoint_name,
-                    ContentType='text/csv',
-                    Body=','.join(map(str, features))
+                    ContentType='application/json',
+                    Body=json.dumps(body)
                 )
                 
                 result_body = response['Body'].read().decode('utf-8')
-                prediction = float(result_body.strip())
+                sagemaker_result = json.loads(result_body)
                 
                 result = {
-                    'prediction': 'Approved' if prediction >= 0.5 else 'Rejected',
-                    'confidence': float(prediction if prediction >= 0.5 else 1 - prediction)
+                    'prediction': sagemaker_result['loan_status'],
+                    'confidence': sagemaker_result['confidence']
                 }
                 
                 return {
