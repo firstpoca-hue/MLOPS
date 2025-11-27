@@ -50,7 +50,7 @@ output "codepipeline_url" {
 # API Gateway Outputs
 output "api_gateway_url" {
   description = "URL of the API Gateway endpoint"
-  value       = module.api_gateway.api_url
+  value       = module.api_gateway.api_gateway_url
 }
 
 # Instructions
@@ -63,7 +63,7 @@ output "next_steps" {
     1. Configure GitHub webhook: ${module.codebuild.webhook_url}
     2. Push code to trigger pipeline: git push origin main
     3. Monitor pipeline: ${module.codepipeline.pipeline_url}
-    4. Test API endpoint: ${module.api_gateway.api_url}
+    4. Test API endpoint: ${module.api_gateway.api_gateway_url}
     
     📊 AWS Console Links:
     - CodePipeline: https://console.aws.amazon.com/codesuite/codepipeline/home
