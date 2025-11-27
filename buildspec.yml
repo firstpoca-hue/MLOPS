@@ -5,40 +5,23 @@ phases:
     runtime-versions:
       python: 3.8
     commands:
-      - echo "Installing dependencies..."
+      - echo "=== INSTALLING DEPENDENCIES ==="
       - pip install --upgrade pip
-      - pip install -r requirements.txt
-      - pip install boto3 sagemaker pandas scikit-learn joblib
-
-  pre_build:
-    commands:
-      - echo "Pre-build phase started on `date`"
-      - echo "Setting up AWS credentials and region"
-      - aws --version
-      - echo $AWS_DEFAULT_REGION
+      - pip install boto3 sagemaker pandas scikit-learn joblib numpy
 
   build:
     commands:
-      - echo "Build phase started on `date`"
-      - echo "BUILDSPEC VERSION: 2025-11-27-FINAL"
-      - echo "Current directory contents:"
+      - echo "=== BUILD STARTED - VERSION 2025-11-27-FINAL ==="
+      - echo "Current working directory:"
+      - pwd
+      - echo "Directory contents:"
       - ls -la
-      - echo "Looking for Pipeline directory:"
-      - find . -name "Pipeline" -type d
-      - echo "Running MLOps pipeline..."
+      - echo "Searching for Pipeline directory:"
+      - find . -name "Pipeline" -type d -ls
+      - echo "=== RUNNING MLOPS PIPELINE ==="
       - python Pipeline/sagemaker_pipeline.py
-      - echo "Pipeline execution completed"
+      - echo "=== PIPELINE COMPLETED ==="
 
   post_build:
     commands:
-      - echo "Post-build phase completed on `date`"
-      - echo "MLOps pipeline finished successfully"
-
-artifacts:
-  files:
-    - '**/*'
-  name: mlops-artifacts-$(date +%Y-%m-%d)
-
-cache:
-  paths:
-    - '/root/.cache/pip/**/*'
+      - echo "=== POST BUILD COMPLETED ==="
