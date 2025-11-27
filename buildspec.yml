@@ -20,6 +20,13 @@ phases:
   build:
     commands:
       - echo "Build phase started on `date`"
+      - echo "Current directory:"
+      - pwd
+      - echo "Directory contents:"
+      - ls -la
+      - echo "Looking for Pipeline directory:"
+      - find . -name "Pipeline" -type d
+      - find . -name "pipeline" -type d
       - echo "Running MLOps pipeline..."
       - cd Pipeline
       - python sagemaker_pipeline.py
