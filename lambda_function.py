@@ -151,17 +151,7 @@ def lambda_handler(event, context):
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .aws-badge {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #ff9900;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
+
         @media (max-width: 768px) {
             .form-grid { grid-template-columns: 1fr; }
             .header h1 { font-size: 2rem; }
@@ -171,7 +161,6 @@ def lambda_handler(event, context):
 </head>
 <body>
     <div class="container">
-        <div class="aws-badge">Powered by AWS</div>
         <div class="header">
             <h1>🤖 AI Loan Prediction System</h1>
             <p>Get instant loan approval decisions powered by machine learning</p>
