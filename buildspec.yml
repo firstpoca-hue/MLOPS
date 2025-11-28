@@ -1,4 +1,5 @@
 version: 0.2
+# Updated: 2025-11-28 - Force endpoint deployment
 
 phases:
   install:
