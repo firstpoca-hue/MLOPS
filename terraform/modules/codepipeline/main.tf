@@ -46,6 +46,22 @@ resource "aws_codepipeline" "mlops_pipeline" {
   }
 
   stage {
+    name = "Approval"
+
+    action {
+      name     = "ManualApproval"
+      category = "Approval"
+      owner    = "AWS"
+      provider = "Manual"
+      version  = "1"
+
+      configuration = {
+        CustomData = "Please review the model training results and approve deployment to production endpoint."
+      }
+    }
+  }
+
+  stage {
     name = "Deploy"
 
     action {
