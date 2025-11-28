@@ -4,7 +4,7 @@ import numpy as np
 
 def lambda_handler(event, context):
     """Lambda function to serve HTML UI and handle predictions via SageMaker Endpoint"""
-    # Updated: 2025-11-28 - Endpoint integration
+    # Updated: 2025-11-28-02:30 - Force zip update
     
     try:
         print(f"Lambda invoked with method: {event.get('httpMethod')}")
