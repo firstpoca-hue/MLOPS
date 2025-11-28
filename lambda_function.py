@@ -7,6 +7,7 @@ def lambda_handler(event, context):
     # Updated: 2025-11-28 - Endpoint integration
     
     try:
+        print(f"Lambda invoked with method: {event.get('httpMethod')}")
         # Handle GET request - serve HTML UI
         if event.get('httpMethod') == 'GET':
             html_content = """<!DOCTYPE html>
