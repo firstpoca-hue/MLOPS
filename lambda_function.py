@@ -4,9 +4,10 @@ import numpy as np
 
 def lambda_handler(event, context):
     """Lambda function to serve HTML UI and handle predictions via SageMaker Endpoint"""
-    # Updated: 2025-11-28-02:30 - Force zip update
+    # Updated: 2025-11-28-14:30 - Add debug logging
     
     try:
+        print(f"Event received: {json.dumps(event)}")
         print(f"Lambda invoked with method: {event.get('httpMethod')}")
         # Handle GET request - serve HTML UI
         if event.get('httpMethod') == 'GET':
@@ -198,6 +199,9 @@ def lambda_handler(event, context):
             }
             
     except Exception as e:
+        print(f"Lambda error: {str(e)}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
         return {
             'statusCode': 500,
             'headers': {'Access-Control-Allow-Origin': '*'},

@@ -16,5 +16,6 @@ data "archive_file" "lambda_zip" {
 resource "null_resource" "lambda_trigger" {
   triggers = {
     lambda_hash = filebase64sha256("${path.module}/../lambda_function.py")
+    timestamp = timestamp()
   }
 }
