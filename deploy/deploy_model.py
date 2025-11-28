@@ -1,10 +1,12 @@
 import boto3
 import time
 
+import os
+
 # ================== CONFIG ==================
-REGION = "eu-central-1"
+REGION = os.environ.get('AWS_DEFAULT_REGION', 'eu-central-1')
 ROLE_ARN = "arn:aws:iam::361509912577:role/SageMakerExecutionRole"
-BUCKET = "teamars-1ee00834"
+BUCKET = os.environ.get('S3_BUCKET', 'teamars-1ee00834-2092be4c')  # Use environment variable
 MODEL_PACKAGE_GROUP_NAME = "loan-model-package-group"
 ENDPOINT_NAME = "loan-endpoint"
 INSTANCE_TYPE = "ml.m5.large"
@@ -12,6 +14,7 @@ INSTANCE_TYPE = "ml.m5.large"
 
 def get_latest_model():
     """Get the latest trained model from S3"""
+    print(f"🔍 Using bucket: {BUCKET}")
     s3 = boto3.client("s3", region_name=REGION)
     
     try:
