@@ -1,6 +1,5 @@
 import json
 import boto3
-import numpy as np
 
 def lambda_handler(event, context):
     """Lambda function to serve HTML UI and handle predictions via SageMaker Endpoint"""
