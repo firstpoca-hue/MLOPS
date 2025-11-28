@@ -18,6 +18,11 @@ variable "codebuild_project_name" {
   type        = string
 }
 
+variable "endpoint_deploy_project_name" {
+  description = "Name of the endpoint deployment CodeBuild project"
+  type        = string
+}
+
 variable "github_owner" {
   description = "GitHub repository owner"
   type        = string

@@ -17,3 +17,9 @@ variable "s3_bucket_name" {
   description = "Name of the S3 bucket for ML artifacts"
   type        = string
 }
+
+variable "buildspec_file" {
+  description = "Path to the buildspec file"
+  type        = string
+  default     = "buildspec.yml"
+}

@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - echo "=== INSTALLING DEPENDENCIES FOR ENDPOINT DEPLOYMENT ==="
+      - pip install --upgrade pip
+      - pip install boto3 sagemaker
+
+  build:
+    commands:
+      - echo "=== DEPLOYING SAGEMAKER ENDPOINT ==="
+      - echo "Current working directory:"
+      - pwd
+      - echo "Directory contents:"
+      - ls -la
+      - echo "=== RUNNING ENDPOINT DEPLOYMENT ==="
+      - python deploy/deploy_model.py
+      - echo "=== ENDPOINT DEPLOYMENT COMPLETED ==="
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: .

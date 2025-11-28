@@ -18,6 +18,16 @@ module "codebuild" {
   s3_bucket_name      = module.s3.ml_bucket_name
 }
 
+# Endpoint deployment CodeBuild project
+module "endpoint_codebuild" {
+  source              = "./modules/codebuild"
+  project_name        = "${var.project_name}-endpoint"
+  codebuild_role_arn  = module.iam.codebuild_role_arn
+  sagemaker_role_arn  = module.iam.sagemaker_role_arn
+  s3_bucket_name      = module.s3.ml_bucket_name
+  buildspec_file      = "endpoint-buildspec.yml"
+}
+
 # GitHub Connection
 module "github_connection" {
   source       = "./modules/github-connection"
@@ -31,6 +41,7 @@ module "codepipeline" {
   codepipeline_role_arn           = module.iam.codepipeline_role_arn
   pipeline_artifacts_bucket_name  = module.s3.pipeline_artifacts_bucket_name
   codebuild_project_name          = module.codebuild.project_name
+  endpoint_deploy_project_name    = module.endpoint_codebuild.project_name
   github_owner                    = var.github_owner
   github_repo                     = var.github_repo
   github_branch                   = var.github_branch

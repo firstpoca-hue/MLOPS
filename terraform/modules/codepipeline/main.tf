@@ -46,6 +46,24 @@ resource "aws_codepipeline" "mlops_pipeline" {
   }
 
   stage {
+    name = "DeployEndpoint"
+
+    action {
+      name             = "DeployEndpoint"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["endpoint_output"]
+      version          = "1"
+
+      configuration = {
+        ProjectName = var.endpoint_deploy_project_name
+      }
+    }
+  }
+
+  stage {
     name = "Approval"
 
     action {

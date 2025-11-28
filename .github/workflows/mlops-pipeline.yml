@@ -1,0 +1,59 @@
+name: MLOps Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'data.csv'
+      - 'code/**'
+      - 'Pipeline/**'
+  workflow_dispatch:
+
+env:
+  AWS_REGION: eu-central-1
+  S3_BUCKET: teamars-1ee00834
+  SAGEMAKER_ROLE_ARN: arn:aws:iam::361509912577:role/SageMakerExecutionRole
+
+jobs:
+  train-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install boto3 sagemaker pandas scikit-learn joblib numpy
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: eu-central-1
+
+    - name: Run MLOps Pipeline
+      run: |
+        echo "🚀 Starting MLOps Pipeline..."
+        python Pipeline/sagemaker_pipeline.py
+        echo "✅ Training completed!"
+
+    - name: Deploy SageMaker Endpoint
+      run: |
+        echo "🌐 Deploying SageMaker Endpoint..."
+        python deploy/deploy_model.py
+        echo "✅ Endpoint deployment initiated!"
+
+    - name: Update Lambda Function
+      run: |
+        echo "🔄 Updating Lambda function..."
+        # The Lambda function will be updated via Terraform in the infrastructure pipeline
+        echo "✅ Lambda function ready for endpoint calls!"
