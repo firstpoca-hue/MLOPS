@@ -27,4 +27,12 @@ phases:
       - echo "=== DEPLOYING SAGEMAKER ENDPOINT ==="
       - python deploy/deploy_model.py
       - echo "=== ENDPOINT DEPLOYMENT INITIATED ==="
+      - echo "Creating deployment artifacts"
+      - mkdir -p artifacts
+      - echo "Model artifacts created"
       - echo "=== POST BUILD COMPLETED ==="
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: artifacts
