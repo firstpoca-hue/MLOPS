@@ -28,10 +28,10 @@ resource "aws_codepipeline" "mlops_pipeline" {
   }
 
   stage {
-    name = "Training ML model"
+    name = "Training-ML-Model"
 
     action {
-      name             = "Training ML model"
+      name             = "Training-ML-Model"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
@@ -46,10 +46,10 @@ resource "aws_codepipeline" "mlops_pipeline" {
   }
 
   stage {
-    name = "DeployEndpoint"
+    name = "Deploy_Endpoint"
 
     action {
-      name             = "DeployEndpoint"
+      name             = "Deploy_Endpoint"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
