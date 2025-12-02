@@ -6,7 +6,7 @@ import os
 # ================== CONFIG ==================
 REGION = os.environ.get('AWS_DEFAULT_REGION', 'eu-central-1')
 ROLE_ARN = "arn:aws:iam::361509912577:role/SageMakerExecutionRole"
-BUCKET = os.environ.get('S3_BUCKET', 'teamars-1ee00834-2092be4c')  # Use environment variable
+BUCKET = os.environ.get('S3_BUCKET', 'teamars-1ee00834-addb14e0')  # Use environment variable
 MODEL_PACKAGE_GROUP_NAME = "loan-model-package-group"
 ENDPOINT_NAME = "loan-endpoint"
 INSTANCE_TYPE = "ml.m5.large"
